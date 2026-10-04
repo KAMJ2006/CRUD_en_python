@@ -1,0 +1,1822 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarea 1 · CRUD en Python con MVC y Colecciones</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root{
+            --azul:#3776AB;       /* Python blue */
+            --azul-osc:#1A4F7A;
+            --amarillo:#FFD43B;   /* Python yellow */
+            --verde:#2E9E5B;
+            --rojo:#D93025;
+            --naranja:#E8710A;
+            --morado:#7B4FA8;
+            --tinta:#1f2430;
+            --gris:#5b6472;
+            --linea:#dfe4ec;
+            --fondo:#f4f6fa;
+            --panel:#ffffff;
+            --code-bg:#14181f;
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Inter',Arial,sans-serif;background:var(--fondo);line-height:1.65;color:var(--tinta);}
+        .container{max-width:1000px;margin:0 auto;padding:20px 20px 60px;}
+        header.hero{background:var(--azul-osc);color:#fff;padding:36px 28px;border-radius:14px;margin:20px 0 10px;
+            background-image:linear-gradient(135deg,#1A4F7A 0%,#3776AB 70%,#4b8fc7 100%);}
+        header.hero h1{font-size:34px;font-weight:800;letter-spacing:-.5px;margin-bottom:8px;}
+        header.hero p{opacity:.92;max-width:65ch;}
+        .hero-tags{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px;}
+        .hero-tags span{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);
+            padding:5px 12px;border-radius:999px;font-size:13px;}
+
+        nav.indice{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);
+            border:1px solid var(--linea);border-radius:12px;padding:10px 14px;margin:14px 0 26px;
+            display:flex;flex-wrap:wrap;gap:6px;}
+        nav.indice a{color:var(--azul-osc);text-decoration:none;font-size:13px;font-weight:600;
+            padding:6px 10px;border-radius:8px;}
+        nav.indice a:hover{background:#E8F0FE;}
+
+        section{background:var(--panel);padding:26px;margin-bottom:22px;border-radius:12px;
+            border:1px solid var(--linea);}
+        h2{color:var(--azul-osc);font-size:25px;font-weight:800;letter-spacing:-.3px;margin-bottom:14px;
+            padding-bottom:10px;border-bottom:3px solid #E8F0FE;}
+        h3{color:var(--azul);font-size:18px;font-weight:700;margin:22px 0 10px;}
+        h4{font-size:15px;font-weight:700;margin:16px 0 6px;color:var(--tinta);}
+        p{margin-bottom:10px;max-width:78ch;}
+        ul,ol{margin-left:22px;margin-bottom:10px;}
+        li{margin-bottom:7px;}
+
+        .explicacion{background:#E8F0FE;border-left:4px solid var(--azul);padding:14px 16px;margin:14px 0;border-radius:0 8px 8px 0;}
+        .paso{background:#E7F5EC;border-left:4px solid var(--verde);padding:14px 16px;margin:14px 0;border-radius:0 8px 8px 0;}
+        .warning{background:#FFF6E0;border-left:4px solid var(--amarillo);padding:14px 16px;margin:14px 0;border-radius:0 8px 8px 0;}
+        .peligro{background:#FDECEA;border-left:4px solid var(--rojo);padding:14px 16px;margin:14px 0;border-radius:0 8px 8px 0;}
+        .analogia{background:#F3ECFA;border-left:4px solid var(--morado);padding:14px 16px;margin:14px 0;border-radius:0 8px 8px 0;}
+
+        pre{background:var(--code-bg);color:#e6edf3;padding:16px;border-radius:10px;overflow-x:auto;
+            font-family:'Fira Code',monospace;font-size:13px;line-height:1.55;margin:12px 0 18px;}
+        code{background:#E8F0FE;color:#14507f;padding:2px 6px;border-radius:4px;font-family:'Fira Code',monospace;font-size:.92em;}
+        pre code{background:none;color:inherit;padding:0;}
+        .code-head{display:flex;justify-content:space-between;align-items:center;background:#20262f;color:#cbd5e1;
+            font-family:'Fira Code',monospace;font-size:12px;padding:8px 14px;border-radius:10px 10px 0 0;margin-top:14px;}
+        .code-head + pre{margin-top:0;border-radius:0 0 10px 10px;}
+        .btn-copy{background:var(--azul);color:#fff;border:none;border-radius:6px;padding:4px 12px;
+            font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+        .btn-copy:hover{background:#4b8fc7;}
+
+        table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px;}
+        th,td{padding:10px 12px;text-align:left;border:1px solid var(--linea);vertical-align:top;}
+        th{background:#E8F0FE;color:var(--azul-osc);font-weight:700;}
+        tbody tr:nth-child(even){background:#fafbfd;}
+
+        .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:14px 0;}
+        .card{border:1px solid var(--linea);border-radius:10px;padding:16px;background:#fcfdff;}
+        .card h4{margin-top:0;}
+
+        .fig{margin:18px 0;text-align:center;}
+        .fig svg{max-width:100%;height:auto;}
+        .fig figcaption{font-size:13px;color:var(--gris);margin-top:8px;}
+
+        .nota{color:#5b6472;font-style:italic;font-size:14px;margin-top:8px;}
+        .badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;
+            color:#fff;vertical-align:middle;}
+        .b-c{background:var(--verde);} .b-r{background:var(--azul);} .b-u{background:var(--naranja);}
+        .b-d{background:var(--rojo);} .b-s{background:var(--morado);}
+
+        .ejercicio{border:1px solid var(--linea);border-left:4px solid var(--amarillo);border-radius:0 10px 10px 0;
+            padding:14px 16px;margin:14px 0;background:#fffdf6;}
+        .btn-sol{background:var(--azul-osc);color:#fff;border:none;border-radius:8px;padding:8px 14px;
+            font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-top:8px;}
+        .btn-sol:hover{background:var(--azul);}
+        .solucion{display:none;margin-top:10px;}
+        .solucion.abierta{display:block;}
+
+        footer.final{text-align:center;background:linear-gradient(135deg,#1A4F7A,#3776AB);color:#fff;
+            padding:30px;border-radius:14px;}
+        footer.final h2{color:#fff;border:none;}
+        @media(max-width:600px){
+            header.hero h1{font-size:26px;} .container{padding:12px 12px 40px;} section{padding:18px;}
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <header class="hero">
+        <h1>Tarea 1 · CRUD en Python</h1>
+        <p>Construimos un sistema de Clientes y Estudiantes aplicando el patrón MVC, las cinco operaciones
+           básicas de datos (crear, leer, buscar, editar, eliminar) y las cuatro colecciones de Python:
+           listas, tuplas, conjuntos y diccionarios.</p>
+        <div class="hero-tags">
+            <span>Python 3</span><span>MVC</span><span>CRUD + Búsqueda</span>
+            <span>list · tuple · set · dict</span><span>JSON</span><span>Puente a Estructuras de Datos</span>
+        </div>
+    </header>
+
+    <nav class="indice">
+        <a href="#objetivos">Objetivos</a>
+        <a href="#mvc">1. MVC</a>
+        <a href="#crud">2. CRUD gráfico</a>
+        <a href="#colecciones">3. Colecciones</a>
+        <a href="#operaciones">4. Operaciones</a>
+        <a href="#estructura">5. Carpetas</a>
+        <a href="#shared">6. shared/</a>
+        <a href="#models">7. Model</a>
+        <a href="#views">8. Controller</a>
+        <a href="#main">9. View</a>
+        <a href="#ejecutar">10. Ejecutar</a>
+        <a href="#escritorio">11. Prueba de escritorio</a>
+        <a href="#errores">12. Errores comunes</a>
+        <a href="#ejercicios">13. Ejercicios</a>
+        <a href="#tarea">14. Tarea</a>
+        <a href="#puente">15. Qué sigue</a>
+    </nav>
+
+    <!-- OBJETIVOS -->
+    <section id="objetivos">
+        <h2>🎯 Qué vas a aprender</h2>
+        <p>Al terminar esta guía vas a poder explicar y programar lo siguiente:</p>
+        <div class="grid2">
+            <div class="card">
+                <h4>1. Separar responsabilidades (MVC)</h4>
+                <p>Saber qué código va en el Modelo, qué código va en el Controlador y qué código va en la Vista,
+                   y por qué mezclarlos hace que un programa sea imposible de mantener.</p>
+            </div>
+            <div class="card">
+                <h4>2. Las 5 operaciones de datos</h4>
+                <p>Crear, Leer, Buscar, Editar y Eliminar. Son las mismas cinco en Python, en una app móvil,
+                   en Django o en un banco. Cambia la herramienta, no la idea.</p>
+            </div>
+            <div class="card">
+                <h4>3. Las 4 colecciones de Python</h4>
+                <p><code>list</code>, <code>tuple</code>, <code>set</code> y <code>dict</code>: cuándo usar cada una,
+                   qué operaciones ofrece y qué te cuesta cada operación.</p>
+            </div>
+            <div class="card">
+                <h4>4. Base para Estructuras de Datos</h4>
+                <p>Una lista es la base de una pila y una cola. Un diccionario es una tabla hash. Un conjunto es
+                   búsqueda instantánea. Aquí las usamos; en la siguiente materia las construimos.</p>
+            </div>
+        </div>
+        <div class="warning">
+            <strong>Cómo trabajar esta guía:</strong> no copies todo de golpe. Lee la explicación, escribe el
+            código a mano, ejecútalo y recién ahí pasa al siguiente paso. El código copiado no enseña nada.
+        </div>
+    </section>
+
+    <!-- MVC -->
+    <section id="mvc">
+        <h2>🏛️ 1. El patrón MVC</h2>
+
+        <p>Un programa que crece termina con un solo archivo de 2000 líneas donde todo llama a todo. MVC es
+           un acuerdo para evitarlo: el código se parte en tres capas y cada capa tiene <strong>un solo trabajo</strong>.</p>
+
+        <div class="analogia">
+            <strong>🍽️ Analogía: un restaurante.</strong><br>
+            <strong>Vista</strong> = el mesero y la carta. Habla con el cliente, toma el pedido, sirve el plato. No cocina.<br>
+            <strong>Controlador</strong> = el jefe de cocina. Recibe el pedido, decide qué hacer, coordina, valida que haya
+            ingredientes y devuelve el plato listo. No atiende mesas.<br>
+            <strong>Modelo</strong> = la receta y la despensa. Define qué es un plato y guarda los ingredientes. No decide nada.
+        </div>
+
+        <figure class="fig">
+            <svg viewBox="0 0 760 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama del patrón MVC">
+                <defs>
+                    <marker id="fl" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                        <path d="M0,0 L9,3 L0,6 Z" fill="#5b6472"/>
+                    </marker>
+                </defs>
+                <!-- usuario -->
+                <circle cx="80" cy="60" r="22" fill="#FFD43B" stroke="#b58b00" stroke-width="2"/>
+                <text x="80" y="66" text-anchor="middle" font-size="20">👤</text>
+                <text x="80" y="102" text-anchor="middle" font-size="13" font-weight="700" fill="#1f2430">Usuario</text>
+
+                <!-- VIEW -->
+                <rect x="160" y="20" width="230" height="110" rx="12" fill="#E8F0FE" stroke="#3776AB" stroke-width="2"/>
+                <text x="275" y="48" text-anchor="middle" font-size="16" font-weight="800" fill="#1A4F7A">VISTA (View)</text>
+                <text x="275" y="70" text-anchor="middle" font-size="13" fill="#1f2430">main.py</text>
+                <text x="275" y="90" text-anchor="middle" font-size="12" fill="#5b6472">Menú, input(), print()</text>
+                <text x="275" y="110" text-anchor="middle" font-size="12" fill="#5b6472">Muestra y recoge. No calcula.</text>
+
+                <!-- CONTROLLER -->
+                <rect x="160" y="165" width="230" height="110" rx="12" fill="#E7F5EC" stroke="#2E9E5B" stroke-width="2"/>
+                <text x="275" y="193" text-anchor="middle" font-size="16" font-weight="800" fill="#1b6b3c">CONTROLADOR</text>
+                <text x="275" y="215" text-anchor="middle" font-size="13" fill="#1f2430">views.py</text>
+                <text x="275" y="235" text-anchor="middle" font-size="12" fill="#5b6472">Reglas: validar, buscar, decidir</text>
+                <text x="275" y="255" text-anchor="middle" font-size="12" fill="#5b6472">Nunca usa print() ni input()</text>
+
+                <!-- MODEL -->
+                <rect x="160" y="310" width="230" height="100" rx="12" fill="#F3ECFA" stroke="#7B4FA8" stroke-width="2"/>
+                <text x="275" y="338" text-anchor="middle" font-size="16" font-weight="800" fill="#5c3785">MODELO (Model)</text>
+                <text x="275" y="360" text-anchor="middle" font-size="13" fill="#1f2430">models.py</text>
+                <text x="275" y="380" text-anchor="middle" font-size="12" fill="#5b6472">Clases Cliente y Estudiante</text>
+                <text x="275" y="398" text-anchor="middle" font-size="12" fill="#5b6472">Qué es un dato y cómo se ve</text>
+
+                <!-- almacen -->
+                <rect x="470" y="310" width="230" height="100" rx="12" fill="#14181f" stroke="#14181f"/>
+                <text x="585" y="345" text-anchor="middle" font-size="15" font-weight="800" fill="#FFD43B">ALMACENAMIENTO</text>
+                <text x="585" y="368" text-anchor="middle" font-size="13" fill="#e6edf3">data/clientes.json</text>
+                <text x="585" y="388" text-anchor="middle" font-size="12" fill="#98a2b3">shared/json_manager.py</text>
+
+                <!-- flechas -->
+                <line x1="104" y1="60" x2="152" y2="60" stroke="#5b6472" stroke-width="2" marker-end="url(#fl)"/>
+                <line x1="255" y1="132" x2="255" y2="160" stroke="#5b6472" stroke-width="2" marker-end="url(#fl)"/>
+                <text x="330" y="150" text-anchor="middle" font-size="11" fill="#5b6472">1. pide acción</text>
+                <line x1="300" y1="160" x2="300" y2="133" stroke="#5b6472" stroke-width="2" marker-end="url(#fl)"/>
+                <text x="190" y="152" text-anchor="middle" font-size="11" fill="#5b6472">4. resultado</text>
+
+                <line x1="255" y1="277" x2="255" y2="305" stroke="#5b6472" stroke-width="2" marker-end="url(#fl)"/>
+                <text x="345" y="295" text-anchor="middle" font-size="11" fill="#5b6472">2. crea objetos</text>
+                <line x1="300" y1="305" x2="300" y2="278" stroke="#5b6472" stroke-width="2" marker-end="url(#fl)"/>
+                <text x="180" y="297" text-anchor="middle" font-size="11" fill="#5b6472">3. devuelve datos</text>
+
+                <line x1="395" y1="360" x2="462" y2="360" stroke="#5b6472" stroke-width="2" marker-end="url(#fl)"/>
+                <text x="428" y="350" text-anchor="middle" font-size="11" fill="#5b6472">guarda</text>
+                <line x1="462" y1="385" x2="396" y2="385" stroke="#5b6472" stroke-width="2" marker-end="url(#fl)"/>
+                <text x="428" y="404" text-anchor="middle" font-size="11" fill="#5b6472">lee</text>
+
+                <!-- nota lateral -->
+                <rect x="470" y="20" width="230" height="255" rx="12" fill="#fffdf6" stroke="#FFD43B" stroke-width="2"/>
+                <text x="585" y="48" text-anchor="middle" font-size="14" font-weight="800" fill="#8a6d00">Regla de oro</text>
+                <text x="490" y="78" font-size="12" fill="#1f2430">• La Vista no sabe qué es JSON.</text>
+                <text x="490" y="104" font-size="12" fill="#1f2430">• El Controlador no sabe que</text>
+                <text x="490" y="122" font-size="12" fill="#1f2430">  existe una consola.</text>
+                <text x="490" y="148" font-size="12" fill="#1f2430">• El Modelo no sabe quién lo usa.</text>
+                <text x="490" y="176" font-size="12" fill="#5b6472">Si cambias la consola por una</text>
+                <text x="490" y="194" font-size="12" fill="#5b6472">página web, solo reescribes la</text>
+                <text x="490" y="212" font-size="12" fill="#5b6472">Vista. Modelo y Controlador</text>
+                <text x="490" y="230" font-size="12" fill="#5b6472">quedan intactos: ese es todo</text>
+                <text x="490" y="248" font-size="12" fill="#5b6472">el beneficio de MVC.</text>
+            </svg>
+            <figcaption>Figura 1 · Las tres capas y el flujo de una acción, de arriba hacia abajo y de regreso.</figcaption>
+        </figure>
+
+        <h3>Qué va en cada archivo</h3>
+        <table>
+            <thead>
+                <tr><th>Capa</th><th>Archivo</th><th>Sí hace</th><th>Nunca hace</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Modelo</strong></td><td><code>models.py</code></td>
+                    <td>Define las clases <code>Cliente</code> y <code>Estudiante</code>, sus atributos y conversiones
+                        (<code>a_diccionario()</code>, <code>desde_diccionario()</code>).</td>
+                    <td>Leer archivos, pedir datos al usuario, imprimir.</td>
+                </tr>
+                <tr>
+                    <td><strong>Controlador</strong></td><td><code>views.py</code></td>
+                    <td>CRUD y búsqueda: valida, arma colecciones, decide si algo está duplicado, guarda vía el gestor.</td>
+                    <td><code>print()</code>, <code>input()</code>, colores de consola.</td>
+                </tr>
+                <tr>
+                    <td><strong>Vista</strong></td><td><code>main.py</code></td>
+                    <td>Menú, pedir datos con <code>input()</code>, mostrar tablas y mensajes con <code>print()</code>.</td>
+                    <td>Abrir el JSON, calcular promedios, validar reglas del negocio.</td>
+                </tr>
+                <tr>
+                    <td><strong>Apoyo</strong></td><td><code>shared/</code></td>
+                    <td>Herramientas reutilizables: colores, validaciones y el gestor de archivos JSON.</td>
+                    <td>Conocer qué es un Cliente o un Estudiante.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="explicacion">
+            <strong>Aviso sobre el nombre <code>views.py</code>.</strong> En esta guía <code>views.py</code> contiene el
+            <em>Controlador</em>, no la Vista. Se llama así porque más adelante van a trabajar con Django, donde el archivo
+            de la lógica también se llama <code>views.py</code> (Django usa una variante de MVC llamada <strong>MVT</strong>:
+            Model – View – Template). Quédense con la idea, no con el nombre del archivo.
+        </div>
+    </section>
+
+    <!-- CRUD -->
+    <section id="crud">
+        <h2>🔁 2. CRUD explicado gráficamente</h2>
+
+        <p><strong>CRUD</strong> son las iniciales en inglés de las cuatro cosas que un sistema hace con sus datos.
+           Le sumamos una quinta que en la práctica se usa más que todas: <strong>buscar</strong>.</p>
+
+        <figure class="fig">
+            <svg viewBox="0 0 760 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Las cinco operaciones CRUD sobre una lista de registros">
+                <defs>
+                    <marker id="fl2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                        <path d="M0,0 L9,3 L0,6 Z" fill="#5b6472"/>
+                    </marker>
+                </defs>
+                <!-- coleccion central -->
+                <rect x="285" y="120" width="190" height="130" rx="10" fill="#14181f"/>
+                <text x="380" y="145" text-anchor="middle" font-size="13" fill="#FFD43B" font-weight="700">data/clientes.json</text>
+                <rect x="300" y="158" width="160" height="24" rx="5" fill="#242c38"/>
+                <text x="380" y="175" text-anchor="middle" font-size="12" fill="#e6edf3">{id:1, nombre:"Juan"}</text>
+                <rect x="300" y="188" width="160" height="24" rx="5" fill="#242c38"/>
+                <text x="380" y="205" text-anchor="middle" font-size="12" fill="#e6edf3">{id:2, nombre:"María"}</text>
+                <rect x="300" y="218" width="160" height="24" rx="5" fill="#242c38"/>
+                <text x="380" y="235" text-anchor="middle" font-size="12" fill="#e6edf3">{id:3, nombre:"Ana"}</text>
+
+                <!-- CREATE -->
+                <rect x="30" y="20" width="200" height="66" rx="10" fill="#E7F5EC" stroke="#2E9E5B" stroke-width="2"/>
+                <text x="130" y="44" text-anchor="middle" font-size="14" font-weight="800" fill="#1b6b3c">C · CREATE — Crear</text>
+                <text x="130" y="64" text-anchor="middle" font-size="12" fill="#1f2430">lista.append(nuevo)</text>
+                <text x="130" y="80" text-anchor="middle" font-size="11" fill="#5b6472">crear_cliente()</text>
+                <line x1="232" y1="60" x2="300" y2="130" stroke="#2E9E5B" stroke-width="2" marker-end="url(#fl2)"/>
+
+                <!-- READ -->
+                <rect x="530" y="20" width="200" height="66" rx="10" fill="#E8F0FE" stroke="#3776AB" stroke-width="2"/>
+                <text x="630" y="44" text-anchor="middle" font-size="14" font-weight="800" fill="#1A4F7A">R · READ — Leer</text>
+                <text x="630" y="64" text-anchor="middle" font-size="12" fill="#1f2430">for dato in lista</text>
+                <text x="630" y="80" text-anchor="middle" font-size="11" fill="#5b6472">obtener_todos() / obtener_por_id()</text>
+                <line x1="470" y1="130" x2="536" y2="66" stroke="#3776AB" stroke-width="2" marker-end="url(#fl2)"/>
+
+                <!-- SEARCH -->
+                <rect x="280" y="20" width="200" height="66" rx="10" fill="#F3ECFA" stroke="#7B4FA8" stroke-width="2"/>
+                <text x="380" y="44" text-anchor="middle" font-size="14" font-weight="800" fill="#5c3785">S · SEARCH — Buscar</text>
+                <text x="380" y="64" text-anchor="middle" font-size="12" fill="#1f2430">if termino in texto</text>
+                <text x="380" y="80" text-anchor="middle" font-size="11" fill="#5b6472">buscar_clientes()</text>
+                <line x1="380" y1="90" x2="380" y2="114" stroke="#7B4FA8" stroke-width="2" marker-end="url(#fl2)"/>
+
+                <!-- UPDATE -->
+                <rect x="30" y="280" width="200" height="66" rx="10" fill="#FFF1E0" stroke="#E8710A" stroke-width="2"/>
+                <text x="130" y="304" text-anchor="middle" font-size="14" font-weight="800" fill="#a04f00">U · UPDATE — Editar</text>
+                <text x="130" y="324" text-anchor="middle" font-size="12" fill="#1f2430">lista[i] = modificado</text>
+                <text x="130" y="340" text-anchor="middle" font-size="11" fill="#5b6472">actualizar_cliente()</text>
+                <line x1="232" y1="310" x2="300" y2="246" stroke="#E8710A" stroke-width="2" marker-end="url(#fl2)"/>
+
+                <!-- DELETE -->
+                <rect x="530" y="280" width="200" height="66" rx="10" fill="#FDECEA" stroke="#D93025" stroke-width="2"/>
+                <text x="630" y="304" text-anchor="middle" font-size="14" font-weight="800" fill="#a01c13">D · DELETE — Eliminar</text>
+                <text x="630" y="324" text-anchor="middle" font-size="12" fill="#1f2430">lista.remove(x) / filtrar</text>
+                <text x="630" y="340" text-anchor="middle" font-size="11" fill="#5b6472">eliminar_cliente()</text>
+                <line x1="528" y1="310" x2="462" y2="248" stroke="#D93025" stroke-width="2" marker-end="url(#fl2)"/>
+            </svg>
+            <figcaption>Figura 2 · Las cinco operaciones giran siempre alrededor de la misma colección de registros.</figcaption>
+        </figure>
+
+        <h3>Cada operación paso a paso</h3>
+        <table>
+            <thead>
+                <tr><th>Operación</th><th>Qué recibe</th><th>Qué hace por dentro</th><th>Qué devuelve</th><th>Colección clave</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="badge b-c">CREATE</span></td>
+                    <td>Los datos del nuevo registro</td>
+                    <td>Lee la lista actual → calcula el nuevo id → revisa que el email no esté repetido (con un <code>set</code>)
+                        → agrega con <code>append()</code> → guarda</td>
+                    <td><code>(True, "mensaje")</code></td>
+                    <td><code>list</code> + <code>set</code></td>
+                </tr>
+                <tr>
+                    <td><span class="badge b-r">READ</span></td>
+                    <td>Nada, o un id</td>
+                    <td>Lee el JSON → convierte cada diccionario en objeto del Modelo → devuelve la lista</td>
+                    <td>Lista de objetos, u objeto / <code>None</code></td>
+                    <td><code>list</code> de <code>dict</code></td>
+                </tr>
+                <tr>
+                    <td><span class="badge b-s">SEARCH</span></td>
+                    <td>Un texto</td>
+                    <td>Recorre todos y se queda con los que contienen el término (búsqueda lineal)</td>
+                    <td>Lista de coincidencias (puede ir vacía)</td>
+                    <td><code>list</code> + <code>tuple</code> de campos</td>
+                </tr>
+                <tr>
+                    <td><span class="badge b-u">UPDATE</span></td>
+                    <td>Un id + los campos a cambiar</td>
+                    <td>Busca la posición con <code>enumerate()</code> → reemplaza ese diccionario → guarda</td>
+                    <td><code>(True/False, "mensaje")</code></td>
+                    <td><code>list</code> por índice</td>
+                </tr>
+                <tr>
+                    <td><span class="badge b-d">DELETE</span></td>
+                    <td>Un id</td>
+                    <td>Construye una lista nueva sin ese registro (nunca borres mientras recorres) → guarda</td>
+                    <td><code>(True/False, "mensaje")</code></td>
+                    <td><code>list</code> por comprensión</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="explicacion">
+            <strong>La misma idea en todos lados.</strong> Cuando hagan Django, <code>crear_cliente()</code> se llamará
+            <code>Cliente.objects.create()</code>, y <code>buscar_clientes()</code> será <code>Cliente.objects.filter()</code>.
+            Aquí lo escriben a mano para entender qué hace el framework por dentro.
+        </div>
+
+        <figure class="fig">
+            <svg viewBox="0 0 760 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Recorrido de la opción crear a través de las capas">
+                <defs>
+                    <marker id="fl3" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+                        <path d="M0,0 L8,3 L0,6 Z" fill="#3776AB"/>
+                    </marker>
+                </defs>
+                <rect x="10" y="70" width="128" height="70" rx="9" fill="#E8F0FE" stroke="#3776AB" stroke-width="2"/>
+                <text x="74" y="98" text-anchor="middle" font-size="12" font-weight="700" fill="#1A4F7A">main.py</text>
+                <text x="74" y="118" text-anchor="middle" font-size="11" fill="#5b6472">input() pide datos</text>
+
+                <rect x="168" y="70" width="128" height="70" rx="9" fill="#E7F5EC" stroke="#2E9E5B" stroke-width="2"/>
+                <text x="232" y="92" text-anchor="middle" font-size="12" font-weight="700" fill="#1b6b3c">views.py</text>
+                <text x="232" y="110" text-anchor="middle" font-size="11" fill="#5b6472">valida y calcula</text>
+                <text x="232" y="126" text-anchor="middle" font-size="11" fill="#5b6472">el siguiente id</text>
+
+                <rect x="326" y="70" width="128" height="70" rx="9" fill="#F3ECFA" stroke="#7B4FA8" stroke-width="2"/>
+                <text x="390" y="92" text-anchor="middle" font-size="12" font-weight="700" fill="#5c3785">models.py</text>
+                <text x="390" y="110" text-anchor="middle" font-size="11" fill="#5b6472">Cliente(...)</text>
+                <text x="390" y="126" text-anchor="middle" font-size="11" fill="#5b6472">a_diccionario()</text>
+
+                <rect x="484" y="70" width="128" height="70" rx="9" fill="#FFF6E0" stroke="#E8710A" stroke-width="2"/>
+                <text x="548" y="92" text-anchor="middle" font-size="12" font-weight="700" fill="#a04f00">json_manager</text>
+                <text x="548" y="110" text-anchor="middle" font-size="11" fill="#5b6472">lista.append(dic)</text>
+                <text x="548" y="126" text-anchor="middle" font-size="11" fill="#5b6472">guardar()</text>
+
+                <rect x="642" y="70" width="108" height="70" rx="9" fill="#14181f"/>
+                <text x="696" y="98" text-anchor="middle" font-size="12" font-weight="700" fill="#FFD43B">clientes.json</text>
+                <text x="696" y="118" text-anchor="middle" font-size="11" fill="#98a2b3">en el disco</text>
+
+                <line x1="140" y1="105" x2="164" y2="105" stroke="#3776AB" stroke-width="2" marker-end="url(#fl3)"/>
+                <line x1="298" y1="105" x2="322" y2="105" stroke="#3776AB" stroke-width="2" marker-end="url(#fl3)"/>
+                <line x1="456" y1="105" x2="480" y2="105" stroke="#3776AB" stroke-width="2" marker-end="url(#fl3)"/>
+                <line x1="614" y1="105" x2="638" y2="105" stroke="#3776AB" stroke-width="2" marker-end="url(#fl3)"/>
+
+                <text x="380" y="30" text-anchor="middle" font-size="13" font-weight="800" fill="#1f2430">Recorrido de la opción “1. Crear cliente”</text>
+                <text x="380" y="180" text-anchor="middle" font-size="12" fill="#5b6472">El regreso es el mismo camino al revés: (True, "Cliente creado") llega hasta el print() de main.py</text>
+            </svg>
+            <figcaption>Figura 3 · Una acción del usuario atravesando las capas, de la consola al disco.</figcaption>
+        </figure>
+    </section>
+
+    <!-- COLECCIONES -->
+    <section id="colecciones">
+        <h2>📦 3. Las cuatro colecciones de Python</h2>
+
+        <p>Una <strong>colección</strong> es una variable que guarda muchos valores a la vez. Python trae cuatro
+           de fábrica y cada una resuelve un problema distinto. Elegir mal la colección es el error más caro
+           de un programa: funciona igual, pero se vuelve lento o inseguro.</p>
+
+        <figure class="fig">
+            <svg viewBox="0 0 760 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Comparación visual de lista, tupla, conjunto y diccionario">
+                <!-- LIST -->
+                <rect x="15" y="15" width="355" height="185" rx="12" fill="#fcfdff" stroke="#3776AB" stroke-width="2"/>
+                <text x="35" y="42" font-size="15" font-weight="800" fill="#1A4F7A">list — cajones numerados [ ]</text>
+                <text x="35" y="62" font-size="12" fill="#5b6472">Ordenada · se puede modificar · admite repetidos</text>
+                <g>
+                    <rect x="35" y="78" width="70" height="44" rx="6" fill="#E8F0FE" stroke="#3776AB"/>
+                    <text x="70" y="105" text-anchor="middle" font-size="13">"Ana"</text>
+                    <text x="70" y="136" text-anchor="middle" font-size="11" fill="#5b6472">índice 0</text>
+                    <rect x="115" y="78" width="70" height="44" rx="6" fill="#E8F0FE" stroke="#3776AB"/>
+                    <text x="150" y="105" text-anchor="middle" font-size="13">"Luis"</text>
+                    <text x="150" y="136" text-anchor="middle" font-size="11" fill="#5b6472">índice 1</text>
+                    <rect x="195" y="78" width="70" height="44" rx="6" fill="#E8F0FE" stroke="#3776AB"/>
+                    <text x="230" y="105" text-anchor="middle" font-size="13">"Ana"</text>
+                    <text x="230" y="136" text-anchor="middle" font-size="11" fill="#5b6472">índice 2</text>
+                    <rect x="275" y="78" width="70" height="44" rx="6" fill="#E8F0FE" stroke="#3776AB" stroke-dasharray="4 3"/>
+                    <text x="310" y="105" text-anchor="middle" font-size="18" fill="#3776AB">+</text>
+                    <text x="310" y="136" text-anchor="middle" font-size="11" fill="#5b6472">append()</text>
+                </g>
+                <text x="35" y="168" font-size="12" fill="#1f2430">clientes = ["Ana", "Luis", "Ana"]</text>
+                <text x="35" y="188" font-size="12" fill="#5b6472">Úsala para: la lista de registros que crece y se recorre.</text>
+
+                <!-- TUPLE -->
+                <rect x="390" y="15" width="355" height="185" rx="12" fill="#fcfdff" stroke="#E8710A" stroke-width="2"/>
+                <text x="410" y="42" font-size="15" font-weight="800" fill="#a04f00">tuple — caja sellada ( )</text>
+                <text x="410" y="62" font-size="12" fill="#5b6472">Ordenada · NO se puede modificar · admite repetidos</text>
+                <g>
+                    <rect x="410" y="78" width="310" height="44" rx="6" fill="#FFF1E0" stroke="#E8710A"/>
+                    <text x="470" y="105" text-anchor="middle" font-size="13">"nombre"</text>
+                    <line x1="530" y1="78" x2="530" y2="122" stroke="#E8710A"/>
+                    <text x="585" y="105" text-anchor="middle" font-size="13">"email"</text>
+                    <line x1="640" y1="78" x2="640" y2="122" stroke="#E8710A"/>
+                    <text x="680" y="105" text-anchor="middle" font-size="13">"telefono"</text>
+                </g>
+                <text x="565" y="140" text-anchor="middle" font-size="12" fill="#a04f00">🔒 no admite append ni asignación</text>
+                <text x="410" y="168" font-size="12" fill="#1f2430">CAMPOS = ("nombre", "email", "telefono")</text>
+                <text x="410" y="188" font-size="12" fill="#5b6472">Úsala para: datos fijos y para devolver varios valores juntos.</text>
+
+                <!-- SET -->
+                <rect x="15" y="218" width="355" height="185" rx="12" fill="#fcfdff" stroke="#7B4FA8" stroke-width="2"/>
+                <text x="35" y="245" font-size="15" font-weight="800" fill="#5c3785">set — bolsa sin repetidos { }</text>
+                <text x="35" y="265" font-size="12" fill="#5b6472">SIN orden · se puede modificar · elimina duplicados</text>
+                <ellipse cx="150" cy="322" rx="105" ry="46" fill="#F3ECFA" stroke="#7B4FA8"/>
+                <text x="105" y="312" text-anchor="middle" font-size="12">ana@x.com</text>
+                <text x="190" y="332" text-anchor="middle" font-size="12">luis@x.com</text>
+                <text x="120" y="348" text-anchor="middle" font-size="12">sol@x.com</text>
+                <text x="300" y="305" text-anchor="middle" font-size="12" fill="#D93025">"ana@x.com"</text>
+                <text x="300" y="322" text-anchor="middle" font-size="12" fill="#D93025">repetido →</text>
+                <text x="300" y="339" text-anchor="middle" font-size="12" fill="#D93025">se descarta solo</text>
+                <text x="35" y="392" font-size="12" fill="#1f2430">emails = {"ana@x.com", "luis@x.com"} · "ana@x.com" in emails → True (instantáneo)</text>
+
+                <!-- DICT -->
+                <rect x="390" y="218" width="355" height="185" rx="12" fill="#fcfdff" stroke="#2E9E5B" stroke-width="2"/>
+                <text x="410" y="245" font-size="15" font-weight="800" fill="#1b6b3c">dict — agenda con etiquetas { clave: valor }</text>
+                <text x="410" y="265" font-size="12" fill="#5b6472">Por clave · se puede modificar · claves únicas</text>
+                <g font-size="12">
+                    <rect x="410" y="278" width="150" height="28" rx="5" fill="#E7F5EC" stroke="#2E9E5B"/>
+                    <text x="420" y="297" fill="#1b6b3c">"nombre"</text>
+                    <rect x="575" y="278" width="145" height="28" rx="5" fill="#fff" stroke="#c9d6cf"/>
+                    <text x="585" y="297">"Ana"</text>
+                    <text x="566" y="297" fill="#5b6472">→</text>
+
+                    <rect x="410" y="312" width="150" height="28" rx="5" fill="#E7F5EC" stroke="#2E9E5B"/>
+                    <text x="420" y="331" fill="#1b6b3c">"email"</text>
+                    <rect x="575" y="312" width="145" height="28" rx="5" fill="#fff" stroke="#c9d6cf"/>
+                    <text x="585" y="331">"ana@x.com"</text>
+                    <text x="566" y="331" fill="#5b6472">→</text>
+
+                    <rect x="410" y="346" width="150" height="28" rx="5" fill="#E7F5EC" stroke="#2E9E5B"/>
+                    <text x="420" y="365" fill="#1b6b3c">"id"</text>
+                    <rect x="575" y="346" width="145" height="28" rx="5" fill="#fff" stroke="#c9d6cf"/>
+                    <text x="585" y="365">1</text>
+                    <text x="566" y="365" fill="#5b6472">→</text>
+                </g>
+                <text x="410" y="392" font-size="12" fill="#5b6472">Úsalo para: un registro completo. Es la forma exacta del JSON.</text>
+            </svg>
+            <figcaption>Figura 4 · Las cuatro colecciones y la forma mental con que conviene imaginarlas.</figcaption>
+        </figure>
+
+        <h3>Tabla de decisión</h3>
+        <table>
+            <thead>
+                <tr><th>Pregunta</th><th>list</th><th>tuple</th><th>set</th><th>dict</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>¿Mantiene el orden en que agregué?</td><td>Sí</td><td>Sí</td><td>No</td><td>Sí (desde Python 3.7)</td></tr>
+                <tr><td>¿Puedo modificarla después de creada?</td><td>Sí</td><td><strong>No</strong></td><td>Sí</td><td>Sí</td></tr>
+                <tr><td>¿Permite elementos repetidos?</td><td>Sí</td><td>Sí</td><td><strong>No</strong></td><td>Claves no, valores sí</td></tr>
+                <tr><td>¿Cómo accedo a un elemento?</td><td>Por índice <code>[0]</code></td><td>Por índice <code>[0]</code></td><td>No hay índice, solo <code>in</code></td><td>Por clave <code>["email"]</code></td></tr>
+                <tr><td>¿Qué tan rápido es preguntar “¿está adentro?”</td><td>Lento: revisa uno por uno</td><td>Lento</td><td><strong>Instantáneo</strong></td><td>Instantáneo (por clave)</td></tr>
+                <tr><td>¿Se guarda tal cual en JSON?</td><td>Sí (array)</td><td>Se convierte en array</td><td><strong>No</strong>, hay que pasarlo a lista</td><td>Sí (objeto)</td></tr>
+                <tr><td>En este proyecto la usamos para…</td><td>La colección de registros</td><td>Campos fijos y retornos <code>(exito, mensaje)</code></td><td>Emails ya usados, materias sin repetir</td><td>Cada registro individual</td></tr>
+            </tbody>
+        </table>
+
+        <div class="analogia">
+            <strong>🏪 Analogía de bodega.</strong> La <strong>lista</strong> es el estante con casillas numeradas.
+            La <strong>tupla</strong> es una caja sellada de fábrica: la lees, no la abres. El <strong>conjunto</strong>
+            es la bolsa donde, si metes dos veces el mismo tornillo, sigue habiendo uno. El <strong>diccionario</strong>
+            es la ficha del producto: cada dato tiene su etiqueta.
+        </div>
+
+        <div class="warning">
+            <strong>¿Por qué el set es instantáneo y la lista no?</strong> Para saber si algo está en una lista de 10 000
+            elementos, Python compara hasta 10 000 veces. En un conjunto calcula una función <em>hash</em> del valor y va
+            directo a su casillero: una sola operación, sin importar el tamaño. Esa diferencia es la razón por la que
+            en la materia de Estructuras de Datos se estudian las tablas hash.
+        </div>
+    </section>
+
+    <!-- OPERACIONES -->
+    <section id="operaciones">
+        <h2>🧰 4. Operaciones con colecciones</h2>
+        <p>Esta sección es la caja de herramientas. Abre la consola de Python (<code>python</code> en la terminal)
+           y prueba cada línea mientras lees: escribir y ver el resultado vale más que memorizar.</p>
+
+        <h3>4.1 Listas: agregar, quitar, recorrer, ordenar</h3>
+        <div class="code-head"><span>listas.py</span><button class="btn-copy" onclick="copiar(this)">Copiar</button></div>
+<pre><code>clientes = ["Ana", "Luis", "Sol"]
+
+# --- AGREGAR ---
+clientes.append("Marco")          # al final       -> ['Ana','Luis','Sol','Marco']
+clientes.insert(1, "Beto")        # en la posición 1
+clientes.extend(["Iván", "Ruth"]) # varios de una vez
+
+# --- QUITAR ---
+clientes.remove("Beto")   # por valor (error si no existe)
+ultimo = clientes.pop()   # saca y devuelve el último  <- esto es una PILA
+primero = clientes.pop(0) # saca el primero            <- esto es una COLA
+
+# --- CONSULTAR ---
+print(len(clientes))            # cuántos hay
+print(clientes[0], clientes[-1])# primero y último
+print("Ana" in clientes)        # True/False
+print(clientes.index("Sol"))    # en qué posición está
+print(clientes.count("Ana"))    # cuántas veces aparece
+
+# --- RECORRER ---
+for nombre in clientes:
+    print(nombre)
+
+for posicion, nombre in enumerate(clientes):   # cuando necesito el índice
+    print(posicion, nombre)
+
+# --- ORDENAR ---
+clientes.sort()                       # modifica la lista original
+copia_ordenada = sorted(clientes)     # deja la original intacta
+clientes.sort(reverse=True)           # de Z a A
+
+# --- TRANSFORMAR (list comprehension) ---
+mayusculas = [n.upper() for n in clientes]
+con_a      = [n for n in clientes if n.startswith("A")]   # filtrar
+longitudes = [len(n) for n in clientes]
+
+# --- ACUMULAR ---
+notas = [18, 15, 20, 12]
+print(sum(notas), max(notas), min(notas), sum(notas) / len(notas))</code></pre>
+
+        <div class="peligro">
+            <strong>Trampa clásica:</strong> nunca elimines elementos de una lista mientras la recorres con
+            <code>for</code>. Python pierde la cuenta de las posiciones y se salta registros. La forma correcta
+            es construir una lista nueva: <code>clientes = [c for c in clientes if c["id"] != 3]</code>.
+        </div>
+
+        <h3>4.2 Tuplas: datos que no deben cambiar</h3>
+        <div class="code-head"><span>tuplas.py</span><button class="btn-copy" onclick="copiar(this)">Copiar</button></div>
+<pre><code>CAMPOS_CLIENTE = ("nombre", "apellido", "email", "telefono", "direccion")
+
+print(len(CAMPOS_CLIENTE))        # 5
+print(CAMPOS_CLIENTE[0])          # 'nombre'
+print("email" in CAMPOS_CLIENTE)  # True
+
+# CAMPOS_CLIENTE.append("ciudad")  ->  AttributeError: no existe append
+# CAMPOS_CLIENTE[0] = "nombres"    ->  TypeError: no se puede asignar
+
+# 1) Devolver dos valores a la vez: el retorno es una tupla
+def crear_cliente(nombre):
+    if not nombre:
+        return (False, "El nombre es obligatorio")
+    return (True, "Cliente creado")
+
+exito, mensaje = crear_cliente("Ana")   # desempaquetado
+print(exito, mensaje)
+
+# 2) Recorrer pares con zip()
+campos  = ("nombre", "email")
+valores = ("Ana", "ana@x.com")
+for campo, valor in zip(campos, valores):
+    print(f"{campo}: {valor}")
+
+# 3) Intercambiar sin variable auxiliar
+a, b = 1, 2
+a, b = b, a
+
+# 4) Una tupla SÍ puede ser clave de un diccionario; una lista NO
+ventas = {("2026", "enero"): 1500, ("2026", "febrero"): 1800}
+print(ventas[("2026", "enero")])</code></pre>
+
+        <div class="explicacion">
+            <strong>Cuándo elegir tupla:</strong> cuando el conjunto de valores es fijo y quieres que Python te
+            avise si alguien intenta cambiarlo. Los nombres de campos, las opciones válidas del menú, las
+            coordenadas y los retornos <code>(exito, mensaje)</code> son tuplas naturales.
+        </div>
+
+        <h3>4.3 Conjuntos: sin repetidos y con operaciones de conjuntos</h3>
+        <div class="code-head"><span>conjuntos.py</span><button class="btn-copy" onclick="copiar(this)">Copiar</button></div>
+<pre><code>emails = {"ana@x.com", "luis@x.com"}
+
+# --- AGREGAR / QUITAR ---
+emails.add("sol@x.com")
+emails.add("ana@x.com")      # ya existía: no pasa nada, sigue habiendo uno
+emails.discard("luis@x.com") # quita sin error aunque no exista
+# emails.remove("no@x.com")  # este SÍ lanza error si no existe
+
+# --- LA OPERACIÓN ESTRELLA: pertenencia instantánea ---
+if "ana@x.com" in emails:
+    print("Ese email ya está registrado")
+
+# --- QUITAR DUPLICADOS DE UNA LISTA ---
+ciudades = ["Guayaquil", "Quito", "Guayaquil", "Milagro", "Quito"]
+unicas = set(ciudades)            # {'Guayaquil','Quito','Milagro'}
+print(len(unicas), "ciudades distintas")
+lista_unica = sorted(unicas)      # volver a lista, ordenada
+
+# --- OPERACIONES ENTRE CONJUNTOS ---
+matematica = {"Ana", "Luis", "Sol"}
+ingles     = {"Luis", "Marco"}
+
+print(matematica | ingles)   # UNIÓN: están en alguna de las dos
+print(matematica &amp; ingles)   # INTERSECCIÓN: están en las dos  -> {'Luis'}
+print(matematica - ingles)   # DIFERENCIA: solo en matemática   -> {'Ana','Sol'}
+print(matematica ^ ingles)   # los que NO comparten
+
+print({"Ana"}.issubset(matematica))       # ¿es subconjunto?
+print(matematica.isdisjoint({"Pedro"}))   # ¿no comparten nada?</code></pre>
+
+        <figure class="fig">
+            <svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama de unión, intersección y diferencia de conjuntos">
+                <text x="350" y="24" text-anchor="middle" font-size="14" font-weight="800" fill="#1f2430">Operaciones entre conjuntos</text>
+                <g>
+                    <circle cx="90" cy="130" r="55" fill="#E8F0FE" stroke="#3776AB" stroke-width="2" opacity=".85"/>
+                    <circle cx="150" cy="130" r="55" fill="#F3ECFA" stroke="#7B4FA8" stroke-width="2" opacity=".7"/>
+                    <text x="120" y="205" text-anchor="middle" font-size="13" font-weight="700" fill="#1f2430">A | B — unión</text>
+                    <text x="120" y="60" text-anchor="middle" font-size="11" fill="#5b6472">todo lo pintado</text>
+                </g>
+                <g>
+                    <circle cx="320" cy="130" r="55" fill="#fff" stroke="#3776AB" stroke-width="2"/>
+                    <circle cx="380" cy="130" r="55" fill="#fff" stroke="#7B4FA8" stroke-width="2"/>
+                    <path d="M350 82 A55 55 0 0 1 350 178 A55 55 0 0 1 350 82 Z" fill="#2E9E5B" opacity=".5"/>
+                    <text x="350" y="205" text-anchor="middle" font-size="13" font-weight="700" fill="#1f2430">A &amp; B — intersección</text>
+                    <text x="350" y="60" text-anchor="middle" font-size="11" fill="#5b6472">solo lo común</text>
+                </g>
+                <g>
+                    <circle cx="550" cy="130" r="55" fill="#E8710A" stroke="#E8710A" stroke-width="2" opacity=".45"/>
+                    <circle cx="610" cy="130" r="55" fill="#fff" stroke="#7B4FA8" stroke-width="2"/>
+                    <text x="580" y="205" text-anchor="middle" font-size="13" font-weight="700" fill="#1f2430">A - B — diferencia</text>
+                    <text x="580" y="60" text-anchor="middle" font-size="11" fill="#5b6472">lo de A que no está en B</text>
+                </g>
+            </svg>
+            <figcaption>Figura 5 · Las tres operaciones que más vas a usar con conjuntos.</figcaption>
+        </figure>
+
+        <h3>4.4 Diccionarios: el registro completo</h3>
+        <div class="code-head"><span>diccionarios.py</span><button class="btn-copy" onclick="copiar(this)">Copiar</button></div>
+<pre><code>cliente = {"id": 1, "nombre": "Ana", "email": "ana@x.com"}
+
+# --- LEER ---
+print(cliente["nombre"])                  # error si la clave no existe
+print(cliente.get("telefono", "sin dato"))# seguro: valor por defecto
+
+# --- ESCRIBIR ---
+cliente["telefono"] = "0987654321"        # agrega o reemplaza
+cliente.update({"ciudad": "Guayaquil"})
+
+# --- QUITAR ---
+del cliente["ciudad"]
+telefono = cliente.pop("telefono", None)
+
+# --- RECORRER ---
+for clave in cliente:                 print(clave)
+for valor in cliente.values():        print(valor)
+for clave, valor in cliente.items():  print(f"{clave} = {valor}")
+
+# --- VERIFICAR ---
+print("email" in cliente)      # busca en las CLAVES, no en los valores
+print(len(cliente))            # cuántos campos tiene
+
+# --- DICCIONARIO DE LISTAS: agrupar ---
+notas = {"Matemática": [18, 19], "Inglés": [17]}
+notas.setdefault("Historia", []).append(20)   # crea la lista si no existía
+
+# --- COMPRENSIÓN DE DICCIONARIO ---
+clientes = [{"id": 1, "nombre": "Ana"}, {"id": 2, "nombre": "Luis"}]
+indice = {c["id"]: c["nombre"] for c in clientes}   # {1:'Ana', 2:'Luis'}
+print(indice[2])   # búsqueda instantánea por id, sin recorrer nada</code></pre>
+
+        <h3>4.5 Convertir una colección en otra</h3>
+        <div class="code-head"><span>conversiones.py</span><button class="btn-copy" onclick="copiar(this)">Copiar</button></div>
+<pre><code>datos = ["a", "b", "a", "c"]
+
+list(datos)      # ['a','b','a','c']
+tuple(datos)     # ('a','b','a','c')   -> la sello, ya no cambia
+set(datos)       # {'a','b','c'}       -> pierdo orden y repetidos
+sorted(set(datos))                     # ['a','b','c'] sin repetidos y ordenado
+
+dict(zip(("id", "nombre"), (1, "Ana")))   # {'id':1, 'nombre':'Ana'}
+list({"id": 1, "nombre": "Ana"}.items())  # [('id',1), ('nombre','Ana')]</code></pre>
+
+        <div class="peligro">
+            <strong>JSON solo entiende dos colecciones:</strong> <code>array</code> (lista) y <code>object</code>
+            (diccionario). Antes de guardar hay que convertir: un <code>set</code> se guarda como
+            <code>list(mi_set)</code> y una tupla se guarda como lista. Al volver a leer, reconstruyes:
+            <code>set(datos["materias"])</code>. Esta conversión aparece en el código del proyecto, así que
+            ténganla presente.
+        </div>
+
+        <table>
+            <thead><tr><th>En Python</th><th>Al guardar en JSON</th><th>Al leer de vuelta</th></tr></thead>
+            <tbody>
+                <tr><td><code>list</code></td><td><code>[ ... ]</code></td><td>vuelve como <code>list</code> ✔</td></tr>
+                <tr><td><code>dict</code></td><td><code>{ ... }</code></td><td>vuelve como <code>dict</code> ✔</td></tr>
+                <tr><td><code>tuple</code></td><td><code>[ ... ]</code></td><td>vuelve como <code>list</code> ⚠ hay que re-convertir</td></tr>
+                <tr><td><code>set</code></td><td>error si no lo conviertes</td><td>vuelve como <code>list</code> ⚠ hay que re-convertir</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- ESTRUCTURA -->
+    <section id="estructura">
+        <h2>📁 5. Estructura del proyecto</h2>
+        <p>Cada archivo corresponde a una capa de la Figura 1. La carpeta <code>data/</code> se crea sola la primera
+           vez que guardas algo.</p>
+<pre><code>proyecto_clientes/
+├── main.py              ← VISTA: menú, input(), print()
+├── views.py             ← CONTROLADOR: las 5 operaciones CRUD
+├── models.py            ← MODELO: clases Cliente y Estudiante
+├── shared/              ← herramientas reutilizables
+│   ├── __init__.py
+│   ├── herramientas.py  ← colores, títulos, validaciones
+│   └── json_manager.py  ← leer y guardar el archivo JSON
+└── data/
+    └── clientes.json    ← se crea automáticamente</code></pre>
+
+        <div class="paso">
+            <strong>Crea las carpetas desde la terminal:</strong><br><br>
+            Windows: <code>mkdir proyecto_clientes &amp;&amp; cd proyecto_clientes &amp;&amp; mkdir shared data</code><br><br>
+            Mac/Linux: <code>mkdir -p proyecto_clientes/{shared,data} &amp;&amp; cd proyecto_clientes</code>
+        </div>
+    </section>
+
+    <!-- SHARED -->
+    <section id="shared">
+        <h2>🧩 6. Módulo shared (código reutilizable)</h2>
+
+        <h3>6.1 shared/__init__.py</h3>
+        <div class="explicacion">
+            Archivo <strong>vacío</strong>. Su única función es avisarle a Python que <code>shared</code> es un
+            paquete del que se puede importar. Créalo sin escribir nada adentro.
+        </div>
+
+        <h3>6.2 shared/herramientas.py</h3>
+        <div class="explicacion">
+            <strong>Qué hace:</strong> colores y mensajes para la consola, más dos validaciones de texto.
+            <br><strong>Colecciones que usa:</strong> un <code>dict</code> para los colores y una <code>tuple</code>
+            para las respuestas que cuentan como “sí”.
+        </div>
+        <div class="code-head"><span>shared/herramientas.py</span><button class="btn-copy" onclick="copiar(this)">Copiar</button></div>
+<pre><code>import os
+
+# DICCIONARIO: cada color tiene su etiqueta y su código de consola
+COLORES = {
+    "ROJO": "\033[91m",
+    "VERDE": "\033[92m",
+    "AZUL": "\033[94m",
+    "AMARILLO": "\033[93m",
+    "CYAN": "\033[96m",
+    "BLANCO": "\033[97m",
+    "RESET": "\033[0m",
+}
+
+# TUPLA: respuestas afirmativas aceptadas. Es fija, por eso no es lista.
+RESPUESTAS_SI = ("si", "sí", "s", "yes", "y")
+
+
+def limpiar_pantalla():
+    os.system("clear" if os.name == "posix" else "cls")
+
+
+def imprimir_color(texto, color):
+    codigo = COLORES.get(color, COLORES["BLANCO"])   # .get evita el error si el color no existe
+    print(f"{codigo}{texto}{COLORES['RESET']}")
+
+
+def imprimir_titulo(texto):
+    limpiar_pantalla()
+    imprimir_color("=" * 60, "AZUL")
+    print(f"  {texto}".center(60))
+    imprimir_color("=" * 60, "AZUL")
+    print()
+
+
+def imprimir_exito(mensaje):
+    imprimir_color(f"✓ {mensaje}", "VERDE")
+
+
+def imprimir_error(mensaje):
+    imprimir_color(f"✗ {mensaje}", "ROJO")
+
+
+def imprimir_info(mensaje):
+    imprimir_color(f"ℹ {mensaje}", "CYAN")
+
+
+def confirmar(pregunta):
+    # Devuelve True si el usuario respondió algo de la tupla RESPUESTAS_SI
+    respuesta = input(f"{pregunta} (si/no): ").strip().lower()
+    return respuesta in RESPUESTAS_SI
+
+
+def es_email_valido(texto):
+    # Validación mínima: un @, algo antes, algo después y un punto al final
+    texto = texto.strip()
+    if texto.count("@") != 1:
+        return False
+    usuario, dominio = texto.split("@")
+    return len(usuario) &gt; 0 and "." in dominio and not dominio.endswith(".")</code></pre>
+
+        <h3>6.3 shared/json_manager.py</h3>
+        <div class="explicacion">
+            <strong>Qué hace:</strong> es la única parte del programa que toca el disco. Recibe y devuelve
+            <strong>listas de diccionarios</strong>; no sabe qué es un Cliente.
+        </div>
+        <div class="code-head"><span>shared/json_manager.py</span><button class="btn-copy" onclick="copiar(this)">Copiar</button></div>
+<pre><code>import json
+import os
+
+
+class GestorJSON:
+    """Lee y guarda una lista de diccionarios en un archivo JSON."""
+
+    def __init__(self, ruta):
+        self.ruta = ruta
+        carpeta = os.path.dirname(ruta)
+        if carpeta and not os.path.exists(carpeta):
+            os.makedirs(carpeta)
+
+    def leer(self):
+        # Devuelve SIEMPRE una lista: vacía si el archivo no existe o está dañado
+        if not os.path.exists(self.ruta):
+            return []
+        try:
+            with open(self.ruta, "r", encoding="utf-8") as archivo:
+                datos = json.load(archivo)
+            return datos if isinstance(datos, list) else []
+        except (json.JSONDecodeError, OSError):
+            # Capturamos errores concretos, nunca un "except:" pelado
+            return []
+
+    def guardar(self, datos):
+        try:
+            with open(self.ruta, "w", encoding="utf-8") as archivo:
+                json.dump(datos, archivo, ensure_ascii=False, indent=2)
+            return True
+        except (TypeError, OSError):
+            # TypeError aparece si intentas guardar un set: JSON no lo conoce
+            return False</code></pre>
+
+        <div class="warning">
+            <strong>Mejora respecto de la versión anterior:</strong> antes se usaba <code>except:</code> a secas, que
+            atrapa hasta el <kbd>Ctrl+C</kbd> del usuario y esconde errores de programación. Siempre se nombra la
+            excepción que esperas.
+        </div>
+    </section>
+
+    <!-- MODELS -->
+    <section id="models">
+        <h2>🏗️ 7. El Modelo (models.py)</h2>
+
+        <div class="explicacion">
+            <strong>Un modelo define qué es un dato.</strong> La clase <code>Cliente</code> dice que todo cliente tiene
+            nombre, apellido, email, teléfono, ciudad y dirección; nada más y nada menos.
+            <br><br><strong>Dos métodos son la bisagra con el resto del sistema:</strong>
+            <ul>
+                <li><code>a_diccionario()</code> — objeto → diccionario, para poder guardarlo.</li>
+                <li><code>desde_diccionario()</code> — diccionario → objeto, al leer del archivo.</li>
+            </ul>
+        </div>
+
+        <figure class="fig">
+            <svg viewBox="0 0 700 140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Conversión entre objeto y diccionario">
+                <rect x="40" y="35" width="200" height="70" rx="10" fill="#F3ECFA" stroke="#7B4FA8" stroke-width="2"/>
+                <text x="140" y="62" text-anchor="middle" font-size="13" font-weight="700" fill="#5c3785">Objeto Cliente</text>
+                <text x="140" y="84" text-anchor="middle" font-size="12" fill="#5b6472">tiene métodos y atributos</text>
+
+                <rect x="460" y="35" width="200" height="70" rx="10" fill="#E7F5EC" stroke="#2E9E5B" stroke-width="2"/>
+                <text x="560" y="62" text-anchor="middle" font-size="13" font-weight="700" fill="#1b6b3c">Diccionario</text>
+                <text x="560" y="84" text-anchor="middle" font-size="12" fill="#5b6472">se puede guardar en JSON</text>
+
+                <path d="M245 58 L452 58" stroke="#7B4FA8" stroke-width="2"/>
+                <path d="M452 58 l-9 -4 l0 8 Z" fill="#7B4FA8"/>
+                <text x="350" y="48" text-anchor="middle" font-size="12" fill="#5c3785">a_diccionario()</text>
+
+                <path d="M455 88 L248 88" stroke="#2E9E5B" stroke-width="2"/>
+                <path d="M248 88 l9 -4 l0 8 Z" fill="#2E9E5B"/>
+                <text x="350" y="108" text-anchor="middle" font-size="12" fill="#1b6b3c">desde_diccionario()</text>
+            </svg>
+            <figcaption>Figura 6 · El Modelo traduce en las dos direcciones entre objetos y diccionarios.</figcaption>
+        </figure>
+
+        <div class="code-head"><span>models.py</span><button class="btn-copy" onclick="copiar(this)">Copiar</button></div>
+<pre><code>import json
+
+# TUPLA de campos: el orden y los nombres son fijos, por eso no es una lista.
+# La usan el Controlador y la Vista para no repetir textos sueltos.
+CAMPOS_CLIENTE = ("nombre", "apellido", "email", "telefono", "ciudad", "direccion")
+
+
+class Cliente:
+    """MODELO: representa a un cliente."""
+
+    def __init__(self, id_cliente, nombre, apellido, email, telefono, ciudad, direccion):
+        self.id = id_cliente          # no usamos 'id' como parámetro: es una función de Python
+        self.nombre = nombre
+        self.apellido = apellido
+        self.email = email
+        self.telefono = telefono
+        self.ciudad = ciudad
+        self.direccion = direccion
+
+    def obtener_nombre_completo(self):
+        return f"{self.nombre} {self.apellido}"
+
+    def a_diccionario(self):
+        # Objeto -> diccionario (listo para JSON)
+        return {
+            "id": self.id,
+            "nombre": self.nombre,
+            "apellido": self.apellido,
+            "email": self.email,
+            "telefono": self.telefono,
+            "ciudad": self.ciudad,
+            "direccion": self.direccion,
+        }
+
+    @classmethod
+    def desde_diccionario(cls, datos):
+        # Diccionario -> objeto. Es un método de la CLASE, no de un objeto:
+        # se usa así -> Cliente.desde_diccionario({...})
+        return cls(
+            datos["id"],
+            datos["nombre"],
+            datos["apellido"],
+            datos["email"],
+            datos["telefono"],
+            datos.get("ciudad", ""),      # .get por si el archivo es de una versión vieja
+            datos.get("direccion", ""),
+        )
+
+    def a_json(self):
+        return json.dumps(self.a_diccionario(), ensure_ascii=False)
+
+    def __str__(self):
+        return f"[{self.id}] {self.obtener_nombre_completo()} - {self.email}"
+
+
+class Estudiante:
+    """MODELO: representa a un estudiante. Usa las cuatro colecciones."""
+
+    def __init__(self, id_estudiante, nombre, apellido, email, carnet, notas=None, materias=None):
+        self.id = id_estudiante
+        self.nombre = nombre
+        self.apellido = apellido
+        self.email = email
+        self.carnet = carnet                      # ej: EST2026001
+        # DICCIONARIO DE LISTAS: {"Matemática": [18, 19], "Inglés": [17]}
+        self.notas = notas if notas else {}
+        # CONJUNTO: materias en las que está inscrito, sin repetidos
+        self.materias = set(materias) if materias else set()
+
+    def obtener_nombre_completo(self):
+        return f"{self.nombre} {self.apellido}"
+
+    def inscribir_materia(self, materia):
+        # add() no duplica: si ya estaba inscrito, no pasa nada
+        self.materias.add(materia)
+
+    def agregar_nota(self, materia, nota):
+        self.inscribir_materia(materia)
+        # setdefault crea la lista vacía la primera vez que aparece la materia
+        self.notas.setdefault(materia, []).append(nota)
+
+    def obtener_promedio(self):
+        todas = []
+        for lista_notas in self.notas.values():
+            todas.extend(lista_notas)
+        if not todas:
+            return 0
+        return round(sum(todas) / len(todas), 2)
+
+    def materias_en_comun(self, otro_estudiante):
+        # INTERSECCIÓN de conjuntos: qué materias comparten dos estudiantes
+        return self.materias &amp; otro_estudiante.materias
+
+    def a_diccionario(self):
+        return {
+            "id": self.id,
+            "nombre": self.nombre,
+            "apellido": self.apellido,
+            "email": self.email,
+            "carnet": self.carnet,
+            "notas": self.notas,
+            # JSON no sabe guardar un set: lo convertimos a lista ordenada
+            "materias": sorted(self.materias),
+        }
+
+    @classmethod
+    def desde_diccionario(cls, datos):
+        return cls(
+            datos["id"], datos["nombre"], datos["apellido"], datos["email"],
+            datos["carnet"],
+            notas=datos.get("notas", {}),
+            # y al leer lo volvemos a convertir en set
+            materias=set(datos.get("materias", [])),
+        )
+
+    def __str__(self):
+        return f"[{self.carnet}] {self.obtener_nombre_completo()} - Promedio: {self.obtener_promedio()}"</code></pre>
+
+        <div class="explicacion">
+            <strong>Lean el Estudiante con calma:</strong> en una sola clase aparecen las cuatro colecciones.
+            <code>dict</code> para las notas por materia, <code>list</code> para las notas de cada materia,
+            <code>set</code> para las materias inscritas y <code>tuple</code> en la lista de campos del módulo.
+        </div>
+    </section>
+
+    <!-- VIEWS -->
+    <section id="views">
+        <h2>⚙️ 8. El Controlador (views.py)</h2>
+
+        <div class="explicacion">
+            Aquí viven las cinco operaciones. Fíjate en tres reglas que se cumplen en todo el archivo:
+            <ul>
+                <li>No hay ni un <code>print()</code> ni un <code>input()</code>: el Controlador no habla con el usuario.</li>
+                <li>Toda función devuelve una <strong>tupla</strong> <code>(exito, mensaje)</code> o datos.
+                    Así la Vista decide cómo mostrarlo.</li>
+                <li>Las validaciones ocurren <strong>antes</strong> de tocar el archivo.</li>
+            </ul>
+        </div>
+
+        <div class="code-head"><span>views.py</span><button class="btn-copy" onclick="copiar(this)">Copiar</button></div>
+<pre><code>from models import Cliente, CAMPOS_CLIENTE
+from shared.json_manager import GestorJSON
+from shared.herramientas import es_email_valido
+
+gestor = GestorJSON("data/clientes.json")
+
+# TUPLAS de configuración: fijas, nadie las modifica en tiempo de ejecución
+CAMPOS_OBLIGATORIOS = ("nombre", "apellido", "email")
+CAMPOS_BUSCABLES = ("nombre", "apellido", "email", "telefono", "ciudad")
+
+
+# ===================== AYUDAS INTERNAS =====================
+
+def emails_registrados(excepto_id=None):
+    """CONJUNTO con los emails ya usados. Sirve para detectar duplicados al instante."""
+    return {
+        registro["email"].lower()
+        for registro in gestor.leer()
+        if registro["id"] != excepto_id
+    }
+
+
+def siguiente_id():
+    ids = [registro["id"] for registro in gestor.leer()]
+    return max(ids) + 1 if ids else 1
+
+
+# ===================== C · CREATE =====================
+
+def crear_cliente(datos):
+    """datos: diccionario con las claves de CAMPOS_CLIENTE. Devuelve (exito, mensaje)."""
+    try:
+        # 1) Normalizo: un diccionario con todos los campos, sin espacios sobrantes
+        valores = {campo: str(datos.get(campo, "")).strip() for campo in CAMPOS_CLIENTE}
+
+        # 2) Reviso obligatorios recorriendo la TUPLA
+        faltantes = [campo for campo in CAMPOS_OBLIGATORIOS if not valores[campo]]
+        if faltantes:
+            return False, f"Faltan campos obligatorios: {', '.join(faltantes)}"
+
+        # 3) Formato del email
+        if not es_email_valido(valores["email"]):
+            return False, f"El email '{valores['email']}' no tiene un formato válido"
+
+        # 4) Duplicado: búsqueda instantánea dentro del CONJUNTO
+        if valores["email"].lower() in emails_registrados():
+            return False, "Ese email ya está registrado"
+
+        # 5) Creo el objeto del Modelo. ** convierte el diccionario en argumentos
+        cliente = Cliente(siguiente_id(), **valores)
+
+        # 6) Agrego a la LISTA y guardo
+        registros = gestor.leer()
+        registros.append(cliente.a_diccionario())
+        if not gestor.guardar(registros):
+            return False, "No se pudo escribir el archivo"
+
+        return True, f"Cliente {cliente.obtener_nombre_completo()} creado con id {cliente.id}"
+
+    except Exception as error:
+        return False, f"Error inesperado: {error}"
+
+
+# ===================== R · READ =====================
+
+def obtener_todos():
+    """LISTA de objetos Cliente."""
+    return [Cliente.desde_diccionario(registro) for registro in gestor.leer()]
+
+
+def obtener_por_id(id_cliente):
+    for cliente in obtener_todos():
+        if cliente.id == id_cliente:
+            return cliente
+    return None
+
+
+# ===================== S · SEARCH =====================
+
+def buscar_clientes(termino):
+    """Búsqueda lineal: revisa registro por registro los campos de CAMPOS_BUSCABLES."""
+    termino = termino.strip().lower()
+    if not termino:
+        return []
+
+    encontrados = []
+    for registro in gestor.leer():
+        for campo in CAMPOS_BUSCABLES:                 # recorro la TUPLA de campos
+            if termino in str(registro.get(campo, "")).lower():
+                encontrados.append(Cliente.desde_diccionario(registro))
+                break                                   # ya coincidió: paso al siguiente cliente
+    return encontrados
+
+
+# ===================== U · UPDATE =====================
+
+def actualizar_cliente(id_cliente, cambios):
+    """cambios: diccionario solo con los campos que se quieren modificar."""
+    try:
+        # DIFERENCIA DE CONJUNTOS: ¿mandaron algún campo que no existe?
+        desconocidos = set(cambios) - set(CAMPOS_CLIENTE)
+        if desconocidos:
+            return False, f"Campos no válidos: {', '.join(sorted(desconocidos))}"
+
+        if not cambios:
+            return False, "No se indicó ningún cambio"
+
+        if "email" in cambios:
+            if not es_email_valido(cambios["email"]):
+                return False, "El email no tiene un formato válido"
+            if cambios["email"].lower() in emails_registrados(excepto_id=id_cliente):
+                return False, "Ese email ya lo usa otro cliente"
+
+        registros = gestor.leer()
+        posicion = None
+        for indice, registro in enumerate(registros):   # enumerate me da índice y valor
+            if registro["id"] == id_cliente:
+                posicion = indice
+                break
+
+        if posicion is None:
+            return False, f"No existe un cliente con id {id_cliente}"
+
+        registros[posicion].update(cambios)             # actualizo el diccionario en su lugar
+        gestor.guardar(registros)
+        return True, f"Cliente {id_cliente} actualizado ({len(cambios)} campo/s)"
+
+    except Exception as error:
+        return False, f"Error inesperado: {error}"
+
+
+# ===================== D · DELETE =====================
+
+def eliminar_cliente(id_cliente):
+    registros = gestor.leer()
+    # Construyo una LISTA NUEVA sin ese registro: nunca borro mientras recorro
+    quedan = [registro for registro in registros if registro["id"] != id_cliente]
+
+    if len(quedan) == len(registros):
+        return False, f"No existe un cliente con id {id_cliente}"
+
+    gestor.guardar(quedan)
+    return True, f"Cliente {id_cliente} eliminado"
+
+
+# ===================== EXTRA: estadísticas con conjuntos =====================
+
+def estadisticas():
+    """Devuelve un DICCIONARIO de resumen. Práctica pura de colecciones."""
+    registros = gestor.leer()
+    ciudades = {r.get("ciudad", "").title() for r in registros if r.get("ciudad")}
+    dominios = {r["email"].split("@")[1].lower() for r in registros if "@" in r["email"]}
+    sin_telefono = [r["nombre"] for r in registros if not r.get("telefono")]
+
+    return {
+        "total": len(registros),
+        "ciudades": sorted(ciudades),
+        "dominios": sorted(dominios),
+        "sin_telefono": sin_telefono,
+    }</code></pre>
+
+        <div class="warning">
+            <strong>Tres mejoras respecto de la versión anterior de esta guía:</strong>
+            <ul>
+                <li>Antes se podía registrar dos veces el mismo email. Ahora un <code>set</code> lo impide.</li>
+                <li>Antes <code>actualizar_cliente()</code> recibía seis parámetros sueltos; ahora recibe un
+                    diccionario de cambios y valida las claves con una diferencia de conjuntos.</li>
+                <li>Antes el <code>id</code> se calculaba con <code>max(...)</code> sobre una lista que podía estar
+                    vacía; ahora hay un caso explícito para la lista vacía.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- MAIN -->
+    <section id="main">
+        <h2>🎮 9. La Vista (main.py)</h2>
+
+        <div class="explicacion">
+            La Vista solo hace tres cosas: mostrar el menú, pedir datos y mostrar resultados. No valida reglas del
+            negocio ni abre archivos. Fíjate en <code>OPCIONES</code>: un <strong>diccionario que reemplaza al
+            <code>if / elif</code> largo</strong>, cada tecla apuntando a la función que le toca.
+        </div>
+
+        <div class="code-head"><span>main.py</span><button class="btn-copy" onclick="copiar(this)">Copiar</button></div>
+<pre><code>from models import CAMPOS_CLIENTE
+from shared.herramientas import (
+    imprimir_titulo, imprimir_exito, imprimir_error, imprimir_info, confirmar
+)
+from views import (
+    crear_cliente, obtener_todos, obtener_por_id, buscar_clientes,
+    actualizar_cliente, eliminar_cliente, estadisticas
+)
+
+
+def pausa():
+    input("\nPresione Enter para continuar...")
+
+
+def mostrar_tabla(clientes):
+    print(f"{'ID':&lt;5}{'NOMBRE':&lt;25}{'EMAIL':&lt;28}{'CIUDAD':&lt;15}{'TELÉFONO':&lt;12}")
+    print("-" * 85)
+    for cliente in clientes:
+        print(f"{cliente.id:&lt;5}{cliente.obtener_nombre_completo():&lt;25}"
+              f"{cliente.email:&lt;28}{cliente.ciudad:&lt;15}{cliente.telefono:&lt;12}")
+    print("-" * 85)
+    imprimir_info(f"Total: {len(clientes)} cliente(s)")
+
+
+# ---------- C · CREAR ----------
+def opcion_crear():
+    imprimir_titulo("CREAR NUEVO CLIENTE")
+    # Recorro la TUPLA de campos: si mañana agrego un campo al Modelo,
+    # este formulario se actualiza solo.
+    datos = {}
+    for campo in CAMPOS_CLIENTE:
+        datos[campo] = input(f"{campo.capitalize()}: ")
+
+    exito, mensaje = crear_cliente(datos)          # desempaqueto la TUPLA que devuelve
+    if exito:
+        imprimir_exito(mensaje)
+    else:
+        imprimir_error(mensaje)
+    pausa()
+
+
+# ---------- R · LEER TODOS ----------
+def opcion_ver_todos():
+    imprimir_titulo("LISTA DE CLIENTES")
+    clientes = obtener_todos()
+    if not clientes:
+        imprimir_info("Todavía no hay clientes. Use la opción 1 para crear el primero.")
+    else:
+        mostrar_tabla(clientes)
+    pausa()
+
+
+# ---------- S · BUSCAR ----------
+def opcion_buscar():
+    imprimir_titulo("BUSCAR CLIENTE")
+    termino = input("Nombre, email, teléfono o ciudad: ")
+    encontrados = buscar_clientes(termino)
+
+    if not encontrados:
+        imprimir_info(f"Ningún cliente coincide con '{termino}'.")
+    else:
+        mostrar_tabla(encontrados)
+    pausa()
+
+
+# ---------- R · LEER UNO ----------
+def opcion_ver_por_id():
+    imprimir_titulo("VER CLIENTE POR ID")
+    try:
+        id_cliente = int(input("Id del cliente: "))
+    except ValueError:
+        imprimir_error("El id debe ser un número entero")
+        return pausa()
+
+    cliente = obtener_por_id(id_cliente)
+    if not cliente:
+        imprimir_error(f"No existe un cliente con id {id_cliente}")
+    else:
+        # Recorro el DICCIONARIO del cliente: clave y valor a la vez
+        for clave, valor in cliente.a_diccionario().items():
+            print(f"  {clave.capitalize():&lt;12}: {valor}")
+    pausa()
+
+
+# ---------- U · ACTUALIZAR ----------
+def opcion_actualizar():
+    imprimir_titulo("ACTUALIZAR CLIENTE")
+    try:
+        id_cliente = int(input("Id del cliente: "))
+    except ValueError:
+        imprimir_error("El id debe ser un número entero")
+        return pausa()
+
+    cliente = obtener_por_id(id_cliente)
+    if not cliente:
+        imprimir_error(f"No existe un cliente con id {id_cliente}")
+        return pausa()
+
+    imprimir_info(f"Editando a {cliente.obtener_nombre_completo()}")
+    print("Deje en blanco el campo que no quiera cambiar.\n")
+
+    # Armo un DICCIONARIO solo con lo que el usuario escribió
+    cambios = {}
+    for campo in CAMPOS_CLIENTE:
+        actual = getattr(cliente, campo)
+        nuevo = input(f"{campo.capitalize()} [{actual}]: ").strip()
+        if nuevo:
+            cambios[campo] = nuevo
+
+    exito, mensaje = actualizar_cliente(id_cliente, cambios)
+    if exito:
+        imprimir_exito(mensaje)
+    else:
+        imprimir_error(mensaje)
+    pausa()
+
+
+# ---------- D · ELIMINAR ----------
+def opcion_eliminar():
+    imprimir_titulo("ELIMINAR CLIENTE")
+    try:
+        id_cliente = int(input("Id del cliente: "))
+    except ValueError:
+        imprimir_error("El id debe ser un número entero")
+        return pausa()
+
+    cliente = obtener_por_id(id_cliente)
+    if not cliente:
+        imprimir_error(f"No existe un cliente con id {id_cliente}")
+        return pausa()
+
+    imprimir_info(f"Se eliminará: {cliente}")
+    if confirmar("¿Confirma la eliminación?"):
+        exito, mensaje = eliminar_cliente(id_cliente)
+        if exito:
+            imprimir_exito(mensaje)
+        else:
+            imprimir_error(mensaje)
+    else:
+        imprimir_info("Operación cancelada")
+    pausa()
+
+
+# ---------- EXTRA · ESTADÍSTICAS ----------
+def opcion_estadisticas():
+    imprimir_titulo("ESTADÍSTICAS")
+    datos = estadisticas()
+    print(f"  Clientes registrados : {datos['total']}")
+    print(f"  Ciudades distintas   : {len(datos['ciudades'])} -> {', '.join(datos['ciudades'])}")
+    print(f"  Dominios de email    : {', '.join(datos['dominios'])}")
+    print(f"  Sin teléfono         : {len(datos['sin_telefono'])}")
+    pausa()
+
+
+def salir():
+    imprimir_info("¡Hasta luego! 👋")
+    return "salir"
+
+
+# DICCIONARIO de opciones: tecla -> (texto del menú, función)
+OPCIONES = {
+    "1": ("Crear cliente", opcion_crear),
+    "2": ("Ver todos", opcion_ver_todos),
+    "3": ("Buscar", opcion_buscar),
+    "4": ("Ver por id", opcion_ver_por_id),
+    "5": ("Actualizar", opcion_actualizar),
+    "6": ("Eliminar", opcion_eliminar),
+    "7": ("Estadísticas", opcion_estadisticas),
+    "0": ("Salir", salir),
+}
+
+
+def mostrar_menu():
+    imprimir_titulo("SISTEMA DE GESTIÓN DE CLIENTES")
+    for tecla, (texto, _funcion) in OPCIONES.items():
+        print(f"  {tecla}. {texto}")
+    print()
+
+
+def main():
+    while True:
+        mostrar_menu()
+        tecla = input("Seleccione una opción: ").strip()
+
+        if tecla not in OPCIONES:          # búsqueda instantánea por clave
+            imprimir_error("Opción no válida")
+            pausa()
+            continue
+
+        _texto, funcion = OPCIONES[tecla]
+        if funcion() == "salir":
+            break
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\nPrograma interrumpido por el usuario.")</code></pre>
+
+        <div class="explicacion">
+            <strong>Por qué el diccionario de opciones es mejor que el <code>if / elif</code>:</strong> agregar una
+            opción nueva es agregar una línea, el menú se imprime solo a partir del mismo diccionario y validar la
+            tecla es un simple <code>in</code>. Cuando el menú tiene 20 opciones, la diferencia se nota.
+        </div>
+    </section>
+
+    <!-- EJECUTAR -->
+    <section id="ejecutar">
+        <h2>🚀 10. Cómo ejecutarlo</h2>
+        <div class="paso"><strong>1.</strong> Copia cada bloque en su archivo, en este orden:
+            <code>shared/__init__.py</code> (vacío), <code>shared/herramientas.py</code>,
+            <code>shared/json_manager.py</code>, <code>models.py</code>, <code>views.py</code>, <code>main.py</code>.</div>
+        <div class="paso"><strong>2.</strong> Abre la terminal dentro de la carpeta: <code>cd proyecto_clientes</code></div>
+        <div class="paso"><strong>3.</strong> Ejecuta: <code>python main.py</code> (o <code>python3 main.py</code> en Mac/Linux)</div>
+        <div class="paso"><strong>4.</strong> Prueba en este orden: crea 3 clientes → intenta crear uno con un email repetido
+            → lista → busca por ciudad → edita uno → mira las estadísticas → elimina uno.</div>
+
+        <h3>Cómo se ve el archivo guardado</h3>
+        <div class="code-head"><span>data/clientes.json</span><button class="btn-copy" onclick="copiar(this)">Copiar</button></div>
+<pre><code>[
+  {
+    "id": 1,
+    "nombre": "Ana",
+    "apellido": "Pérez",
+    "email": "ana@ejemplo.com",
+    "telefono": "0987654321",
+    "ciudad": "Guayaquil",
+    "direccion": "Av. Principal 123"
+  },
+  {
+    "id": 2,
+    "nombre": "Luis",
+    "apellido": "García",
+    "email": "luis@ejemplo.com",
+    "telefono": "",
+    "ciudad": "Milagro",
+    "direccion": "Calle 5 y Pichincha"
+  }
+]</code></pre>
+        <p class="nota">Observa la forma: una <strong>lista</strong> de <strong>diccionarios</strong>. Exactamente la
+           estructura que el Controlador maneja en memoria.</p>
+    </section>
+
+    <!-- PRUEBA DE ESCRITORIO -->
+    <section id="escritorio">
+        <h2>🔍 11. Prueba de escritorio</h2>
+        <p>Antes de ejecutar, sigue el código con lápiz y papel. Este ejercicio vale más que veinte líneas nuevas:
+           así se depura sin depurador.</p>
+
+        <h4>Caso: <code>crear_cliente()</code> con un email ya registrado</h4>
+        <p>Estado inicial del archivo: un cliente con id 1 y email <code>ana@ejemplo.com</code>.
+           El usuario escribe: Ana / Torres / ANA@ejemplo.com / 099 / Quito / Calle 8.</p>
+        <table>
+            <thead><tr><th>#</th><th>Línea que se ejecuta</th><th>Valor resultante</th><th>¿Qué decide?</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td><code>valores = {campo: ... for campo in CAMPOS_CLIENTE}</code></td>
+                    <td><code>{'nombre':'Ana', ..., 'email':'ANA@ejemplo.com'}</code></td><td>Normaliza espacios</td></tr>
+                <tr><td>2</td><td><code>faltantes = [...]</code></td><td><code>[]</code></td><td>Lista vacía → sigue</td></tr>
+                <tr><td>3</td><td><code>es_email_valido('ANA@ejemplo.com')</code></td><td><code>True</code></td><td>Formato correcto → sigue</td></tr>
+                <tr><td>4</td><td><code>emails_registrados()</code></td><td><code>{'ana@ejemplo.com'}</code></td><td>Conjunto con 1 elemento</td></tr>
+                <tr><td>5</td><td><code>'ana@ejemplo.com' in {...}</code></td><td><code>True</code></td><td>🛑 corta aquí</td></tr>
+                <tr><td>6</td><td><code>return False, "Ese email ya está registrado"</code></td>
+                    <td>tupla <code>(False, "...")</code></td><td>La Vista imprime el error en rojo</td></tr>
+            </tbody>
+        </table>
+        <div class="explicacion">
+            El paso 5 funciona porque en el paso 1 y en el conjunto usamos <code>.lower()</code>. Sin eso,
+            <code>ANA@ejemplo.com</code> y <code>ana@ejemplo.com</code> serían dos clientes distintos.
+            Normalizar antes de comparar es una regla de oro cuando se trabaja con conjuntos.
+        </div>
+    </section>
+
+    <!-- ERRORES -->
+    <section id="errores">
+        <h2>🐞 12. Errores comunes con colecciones</h2>
+        <table>
+            <thead><tr><th>Error</th><th>Qué pasa</th><th>Cómo se arregla</th></tr></thead>
+            <tbody>
+                <tr><td><code>lista.remove(x)</code> dentro de un <code>for</code></td>
+                    <td>Se saltan elementos: la lista se reacomoda mientras la recorres</td>
+                    <td>Crear una lista nueva: <code>[e for e in lista if e != x]</code></td></tr>
+                <tr><td><code>b = a</code> creyendo que copia</td>
+                    <td>Las dos variables apuntan a la <em>misma</em> lista; cambiar una cambia la otra</td>
+                    <td><code>b = a.copy()</code> o <code>b = list(a)</code></td></tr>
+                <tr><td><code>def f(lista=[])</code></td>
+                    <td>La lista por defecto se comparte entre todas las llamadas y se va llenando</td>
+                    <td><code>def f(lista=None): lista = lista or []</code></td></tr>
+                <tr><td>Esperar orden en un <code>set</code></td>
+                    <td>Se imprime en cualquier orden</td>
+                    <td><code>sorted(mi_set)</code> cuando lo vayas a mostrar</td></tr>
+                <tr><td><code>json.dump</code> con un <code>set</code> adentro</td>
+                    <td><code>TypeError: Object of type set is not JSON serializable</code></td>
+                    <td>Convertir: <code>sorted(mi_set)</code> antes de guardar</td></tr>
+                <tr><td><code>dic["clave"]</code> de una clave que no existe</td><td><code>KeyError</code></td>
+                    <td><code>dic.get("clave", valor_por_defecto)</code></td></tr>
+                <tr><td>Usar una lista como clave de diccionario</td><td><code>TypeError: unhashable type</code></td>
+                    <td>Usar una <code>tuple</code>: sí puede ser clave</td></tr>
+                <tr><td>Comparar textos sin normalizar</td><td>“Ana” ≠ “ana” ≠ “ Ana ”</td>
+                    <td><code>.strip().lower()</code> antes de comparar</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- EJERCICIOS -->
+    <section id="ejercicios">
+        <h2>✍️ 13. Ejercicios de colecciones</h2>
+        <p>Resuélvelos en un archivo aparte, <code>practica.py</code>. Intenta primero; recién después abre la solución.</p>
+
+        <div class="ejercicio">
+            <h4>Ejercicio 1 · Quitar duplicados conservando el orden</h4>
+            <p>Dada <code>ciudades = ["Quito","Guayaquil","Quito","Cuenca","Guayaquil"]</code>, obtén una lista sin
+               repetidos <strong>respetando el orden de aparición</strong> (un <code>set</code> solo no alcanza).</p>
+            <button class="btn-sol" onclick="verSolucion(this)">Ver solución</button>
+            <div class="solucion">
+<pre><code>ciudades = ["Quito", "Guayaquil", "Quito", "Cuenca", "Guayaquil"]
+
+vistas = set()      # conjunto de control: para preguntar rápido si ya apareció
+unicas = []         # lista de resultado: conserva el orden
+for ciudad in ciudades:
+    if ciudad not in vistas:
+        vistas.add(ciudad)
+        unicas.append(ciudad)
+
+print(unicas)   # ['Quito', 'Guayaquil', 'Cuenca']</code></pre>
+                <p><strong>Idea clave:</strong> el conjunto sirve de “memoria rápida” y la lista guarda el orden.
+                   Este patrón aparece muchísimo en procesamiento de datos.</p>
+            </div>
+        </div>
+
+        <div class="ejercicio">
+            <h4>Ejercicio 2 · Contar con un diccionario</h4>
+            <p>Con la misma lista, arma un diccionario <code>{"Quito": 2, "Guayaquil": 2, "Cuenca": 1}</code>.</p>
+            <button class="btn-sol" onclick="verSolucion(this)">Ver solución</button>
+            <div class="solucion">
+<pre><code>conteo = {}
+for ciudad in ciudades:
+    conteo[ciudad] = conteo.get(ciudad, 0) + 1     # .get evita el KeyError la primera vez
+
+print(conteo)
+
+# El más repetido:
+mas_repetida = max(conteo, key=conteo.get)
+print(mas_repetida)</code></pre>
+            </div>
+        </div>
+
+        <div class="ejercicio">
+            <h4>Ejercicio 3 · Conjuntos en acción</h4>
+            <p><code>inscritos_matematica = {"Ana","Luis","Sol","Marco"}</code> y
+               <code>inscritos_ingles = {"Luis","Marco","Ruth"}</code>. Responde con código:
+               ¿quiénes están en las dos?, ¿quiénes solo en matemática?, ¿cuántos estudiantes distintos hay en total?</p>
+            <button class="btn-sol" onclick="verSolucion(this)">Ver solución</button>
+            <div class="solucion">
+<pre><code>ambas       = inscritos_matematica &amp; inscritos_ingles     # {'Luis','Marco'}
+solo_mate   = inscritos_matematica - inscritos_ingles     # {'Ana','Sol'}
+total       = len(inscritos_matematica | inscritos_ingles)  # 5
+
+print(sorted(ambas), sorted(solo_mate), total)</code></pre>
+            </div>
+        </div>
+
+        <div class="ejercicio">
+            <h4>Ejercicio 4 · De lista de diccionarios a índice</h4>
+            <p>Con <code>clientes = [{"id":1,"nombre":"Ana"},{"id":2,"nombre":"Luis"}]</code>, crea un diccionario
+               <code>{id: cliente}</code> para acceder por id sin recorrer la lista. Luego imprime el nombre del id 2.</p>
+            <button class="btn-sol" onclick="verSolucion(this)">Ver solución</button>
+            <div class="solucion">
+<pre><code>indice = {cliente["id"]: cliente for cliente in clientes}
+print(indice[2]["nombre"])       # 'Luis'
+
+# Diferencia de costo:
+# recorrer la lista  -> revisa hasta N registros
+# indice[2]          -> una sola operación, sin importar cuántos haya</code></pre>
+                <p><strong>Esto es exactamente lo que hace una base de datos cuando creas un índice.</strong></p>
+            </div>
+        </div>
+
+        <div class="ejercicio">
+            <h4>Ejercicio 5 · Tuplas como registros inmutables</h4>
+            <p>Dada <code>ventas = [("enero", 1500), ("febrero", 1800), ("marzo", 1200)]</code>, imprime el mes con
+               mayor venta y el total, usando desempaquetado de tuplas.</p>
+            <button class="btn-sol" onclick="verSolucion(this)">Ver solución</button>
+            <div class="solucion">
+<pre><code>total = sum(monto for _mes, monto in ventas)
+
+mejor_mes, mejor_monto = max(ventas, key=lambda venta: venta[1])
+
+print(f"Total: {total}")
+print(f"Mejor mes: {mejor_mes} con {mejor_monto}")
+
+for mes, monto in ventas:              # desempaquetado en el for
+    print(f"{mes:&lt;10} {monto}")</code></pre>
+            </div>
+        </div>
+
+        <div class="ejercicio">
+            <h4>Ejercicio 6 · Sobre el proyecto</h4>
+            <p>Agrega al Controlador la función <code>clientes_por_ciudad()</code> que devuelva un diccionario
+               <code>{"Guayaquil": ["Ana", "Luis"], "Quito": ["Sol"]}</code>.</p>
+            <button class="btn-sol" onclick="verSolucion(this)">Ver solución</button>
+            <div class="solucion">
+<pre><code>def clientes_por_ciudad():
+    agrupados = {}
+    for registro in gestor.leer():
+        ciudad = registro.get("ciudad", "").title() or "Sin ciudad"
+        # setdefault: si la ciudad no estaba, crea la lista vacía y luego agrega
+        agrupados.setdefault(ciudad, []).append(registro["nombre"])
+    return agrupados</code></pre>
+                <p>Agrúpalo en el menú como opción 8 y muéstralo recorriendo <code>.items()</code>.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- TAREA -->
+    <section id="tarea">
+        <h2>📝 14. Tarea: sistema de Estudiantes</h2>
+
+        <div class="explicacion">
+            La clase <code>Estudiante</code> ya está escrita en <code>models.py</code>. Tu trabajo es construir
+            <code>proyecto_estudiantes/</code> repitiendo la misma arquitectura MVC, sin copiar a ciegas.
+        </div>
+
+        <h3>Qué entregar</h3>
+        <ol>
+            <li>Copia la carpeta completa <code>proyecto_clientes/</code> como <code>proyecto_estudiantes/</code>.</li>
+            <li>En <code>views.py</code>: cambia el gestor a <code>data/estudiantes.json</code>, importa
+                <code>Estudiante</code> y adapta las cinco operaciones
+                (<code>crear_estudiante</code>, <code>obtener_todos</code>, <code>buscar_estudiantes</code>,
+                <code>actualizar_estudiante</code>, <code>eliminar_estudiante</code>).</li>
+            <li>Valida que el <strong>carnet no se repita</strong>, usando un <code>set</code> igual que con el email.</li>
+            <li>Agrega <code>agregar_nota(id, materia, nota)</code> al Controlador. La nota debe ser un número
+                entre 0 y 20; si no, devuelve <code>(False, mensaje)</code>.</li>
+            <li>Agrega <code>materias_ofertadas()</code>: devuelve el <code>set</code> con todas las materias
+                inscritas por todos los estudiantes, sin repetir.</li>
+            <li>Agrega <code>estudiantes_en_comun(id_a, id_b)</code>: usa la intersección de conjuntos para mostrar
+                las materias que dos estudiantes comparten.</li>
+            <li>En <code>main.py</code>: ajusta los textos del menú y agrega las opciones
+                “Agregar nota”, “Ver promedio” y “Materias en común”.</li>
+        </ol>
+
+        <h3>Rúbrica</h3>
+        <table>
+            <thead><tr><th>Criterio</th><th>Puntos</th></tr></thead>
+            <tbody>
+                <tr><td>Las tres capas están separadas: cero <code>print()</code> en <code>views.py</code>, cero lógica en <code>main.py</code></td><td>3</td></tr>
+                <tr><td>Las cinco operaciones funcionan (crear, leer, buscar, editar, eliminar)</td><td>3</td></tr>
+                <tr><td>Uso correcto de las cuatro colecciones y justificación en comentarios</td><td>2</td></tr>
+                <tr><td>Validaciones: carnet duplicado, nota fuera de rango, id inexistente</td><td>1</td></tr>
+                <tr><td>El JSON se guarda y se vuelve a leer sin perder datos (incluido el set de materias)</td><td>1</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Así debería verse el archivo</h3>
+        <div class="code-head"><span>data/estudiantes.json</span><button class="btn-copy" onclick="copiar(this)">Copiar</button></div>
+<pre><code>[
+  {
+    "id": 1,
+    "nombre": "Ana",
+    "apellido": "Pérez",
+    "email": "ana@escuela.edu",
+    "carnet": "EST2026001",
+    "notas": {
+      "Matemática": [18, 19, 20],
+      "Inglés": [16, 17]
+    },
+    "materias": ["Inglés", "Matemática"]
+  }
+]</code></pre>
+        <p class="nota"><code>"materias"</code> se guarda como lista porque JSON no conoce los conjuntos, pero al leer
+           vuelve a convertirse en <code>set</code> dentro de <code>desde_diccionario()</code>.</p>
+    </section>
+
+    <!-- PUENTE -->
+    <section id="puente">
+        <h2>🌉 15. Lo que viene: Estructuras de Datos</h2>
+        <p>Todo lo que usaste aquí es la base de la próxima materia. Mira la conexión:</p>
+        <table>
+            <thead><tr><th>Lo que usaste hoy</th><th>Se convierte en…</th><th>Para qué sirve</th></tr></thead>
+            <tbody>
+                <tr><td><code>lista.append()</code> y <code>lista.pop()</code></td><td><strong>Pila (LIFO)</strong></td>
+                    <td>Deshacer una acción, historial del navegador</td></tr>
+                <tr><td><code>lista.append()</code> y <code>lista.pop(0)</code></td><td><strong>Cola (FIFO)</strong></td>
+                    <td>Lista de espera, turnos de atención</td></tr>
+                <tr><td><code>dict</code> y su acceso por clave</td><td><strong>Tabla hash</strong></td>
+                    <td>Buscar un registro sin recorrer nada</td></tr>
+                <tr><td><code>set</code> y el operador <code>in</code></td><td><strong>Conjunto hash</strong></td>
+                    <td>Detectar duplicados en tiempo constante</td></tr>
+                <tr><td>Recorrer una lista con <code>for</code> para buscar</td><td><strong>Búsqueda lineal</strong></td>
+                    <td>El punto de partida para entender por qué existe la búsqueda binaria</td></tr>
+                <tr><td><code>tuple</code> inmutable</td><td><strong>Registro / nodo</strong></td>
+                    <td>La celda que luego apunta a otra en una lista enlazada</td></tr>
+            </tbody>
+        </table>
+        <div class="paso">
+            <strong>Pregunta para pensar antes de la próxima clase:</strong> tu <code>buscar_clientes()</code> revisa
+            uno por uno. Con 10 clientes no se nota; con 5 millones, sí. ¿Qué colección de las cuatro usarías para que
+            buscar por email fuera instantáneo, y qué pierdes a cambio?
+        </div>
+    </section>
+
+    <footer class="final">
+        <h2>🎯 Listo</h2>
+        <p>Tres capas, cinco operaciones, cuatro colecciones. Ejecuta con
+           <code style="background:rgba(0,0,0,.3);color:#fff;">python main.py</code> y empieza a romperlo:
+           se aprende arreglando.</p>
+    </footer>
+</div>
+
+<script>
+    function copiar(boton) {
+        // El botón vive dentro de .code-head; el bloque de código es el hermano siguiente
+        const bloque = boton.closest('.code-head')
+            ? boton.closest('.code-head').nextElementSibling
+            : boton.nextElementSibling;
+        navigator.clipboard.writeText(bloque.innerText).then(() => {
+            boton.textContent = '✓ Copiado';
+            setTimeout(() => { boton.textContent = 'Copiar'; }, 2000);
+        });
+    }
+
+    function verSolucion(boton) {
+        const caja = boton.nextElementSibling;
+        const abierta = caja.classList.toggle('abierta');
+        boton.textContent = abierta ? 'Ocultar solución' : 'Ver solución';
+    }
+</script>
+</body>
+</html>
